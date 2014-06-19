@@ -52,7 +52,7 @@ func xmlRpcClient(s string) []string {
 	defer client.Close()
 	// PyPI user_packages()
 	var result [][]string
-	client.Call("user_packages", "mkouhei", &result)
+	client.Call("user_packages", username, &result)
 	pkgs := make([]string, len(result))
 	for i, v := range result {
 		pkgs[i] = v[1]
