@@ -30,66 +30,34 @@ func client(s string) {
 	log.Println()
 }
 
-type pkg struct {
-	Role string
-	Name string
-}
+/*
+confirm with cURL command and prepared XML file,
+---
+<?xml version="1.0"?>
+<methodCall>
+  <methodName>someMethod</methodName>
+  <params>
+    <param><string>someParam</string></param>
+  </params>
+</methodCall>
+---
+$ curl -H 'Content-Type: text/xml' -X POST --data @test.xml \
+> http://example.org/xmlrpc/api
 
-type pkgs struct {
-	Pkgs []pkg `xmlrpc:"array"`
-}
-
-func xmlRpcClient(s string) {
+Response data types encoding rules is as follows;
+https://github.com/kolo/xmlrpc#result-decoding
+*/
+func xmlRpcClient(s string) []string {
 	client, _ := xmlrpc.NewClient(s, nil)
 	defer client.Close()
-	/*
-			// Bugzill.version
-			<?xml version="1.0" encoding="UTF-8"?>
-			<methodResponse>
-			<params>
-			<param>
-			<value>
-			<struct>
-			<member>
-			<name>version</name>
-			<value>
-			<string>4.2.9+</string>
-			</value></member>
-			</struct>
-			</value>
-			</param>
-			</params>
-			</methodResponse>
-		---
-					var result = struct {
-						Version string `xmlrpc:"version"`
-					}{}
-					client.Call("Bugzilla.version", nil, &result)
-	*/
-
-	/*
-		//PyPI package_releases()
-		---
-		<?xml version='1.0'?>
-		<methodResponse>
-		<params>
-		<param>
-		<value><array><data>
-		<value><string>0.3.4</string></value>
-		</data></array></value>
-		</param>
-		</params>
-		</methodResponse>
-		---
-			var result []string
-			client.Call("package_releases", "shiori", &result)
-	*/
-
 	// PyPI user_packages()
 	var result [][]string
 	client.Call("user_packages", "mkouhei", &result)
-
-	fmt.Println(result)
+	pkgs := make([]string, len(result))
+	for i, v := range result {
+		pkgs[i] = v[1]
+	}
+	return pkgs
 }
 
 func assert(data interface{}) {
@@ -122,8 +90,8 @@ func assert(data interface{}) {
 }
 
 func main() {
-	client(udd + "&email1=" + email)
-	client(github + "/" + username + "/events")
-	//xmlRpcClient(mozilla)
-	xmlRpcClient(pypi)
+	//client(udd + "&email1=" + email)
+	//client(github + "/" + username + "/events")
+	pkgs := xmlRpcClient(pypi)
+	fmt.Println(pkgs)
 }
