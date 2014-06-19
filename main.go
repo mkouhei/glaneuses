@@ -17,7 +17,7 @@ var (
 	github   = "https://api.github.com/users"
 )
 
-func client(s string) {
+func jsonRestClient(s string) interface{} {
 	resp, err := http.Get(s)
 	if err != nil {
 		log.Fatal(err)
@@ -26,8 +26,7 @@ func client(s string) {
 	var data interface{}
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data)
-	assert(data)
-	log.Println()
+	return data
 }
 
 /*
@@ -90,8 +89,10 @@ func assert(data interface{}) {
 }
 
 func main() {
-	//client(udd + "&email1=" + email)
-	//client(github + "/" + username + "/events")
+	todo := jsonRestClient(udd + "&email1=" + email)
+	assert(todo)
+	activity := jsonRestClient(github + "/" + username + "/events")
+	assert(activity)
 	pkgs := xmlRpcClient(pypi)
 	fmt.Println(pkgs)
 }
