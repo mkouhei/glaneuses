@@ -89,10 +89,8 @@ func assert(data interface{}) {
 }
 
 func main() {
-	todo := jsonRestClient(udd + "&email1=" + email)
-	assert(todo)
-	activity := jsonRestClient(github + "/" + username + "/events")
-	assert(activity)
-	pkgs := xmlRpcClient(pypi)
-	fmt.Println(pkgs)
+	assert(jsonRestClient(udd + "&email1=" + email))
+	assert(jsonRestClient(github + "/" + username + "/events"))
+	fmt.Println(xmlRpcClient(pypi))
+
 }
