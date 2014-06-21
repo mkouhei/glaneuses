@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/bitly/go-simplejson"
 	"github.com/kolo/xmlrpc"
 	"log"
 	"net/http"
@@ -16,6 +17,16 @@ var (
 	mozilla  = "https://bugzilla.mozilla.org/xmlrpc.cgi"
 	github   = "https://api.github.com/users"
 )
+
+func restClient(s string) {
+	resp, err := http.Get(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	js, err := simplejson.NewFromReader(resp.Body)
+	fmt.Println(js)
+}
 
 func jsonRestClient(s string) interface{} {
 	resp, err := http.Get(s)
@@ -89,8 +100,13 @@ func assert(data interface{}) {
 }
 
 func main() {
-	assert(jsonRestClient(udd + "&email1=" + email))
-	assert(jsonRestClient(github + "/" + username + "/events"))
-	fmt.Println(xmlRpcClient(pypi))
-
+	//uddResult := jsonRestClient(udd + "&email1=" + email)
+	restClient(udd + "&email1=" + email)
+	//assert(uddResult)
+	/*
+		githubResult := jsonRestClient(github + "/" + username + "/events")
+		assert(githubResult)
+		pypiResult := xmlRpcClient(pypi)
+		fmt.Println(pypiResult)
+	*/
 }
