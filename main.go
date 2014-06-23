@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/bitly/go-simplejson"
 	"github.com/kolo/xmlrpc"
@@ -14,31 +13,17 @@ var (
 	email    = "mkouhei@palmtb.net"
 	udd      = "http://udd.debian.org/dmd/?format=json"
 	pypi     = "http://pypi.python.org/pypi"
-	mozilla  = "https://bugzilla.mozilla.org/xmlrpc.cgi"
 	github   = "https://api.github.com/users"
 )
 
-func restClient(s string) []byte {
+func restClient(s string) *simplejson.Json {
 	resp, err := http.Get(s)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 	js, err := simplejson.NewFromReader(resp.Body)
-	data, _ := js.EncodePretty()
-	return data
-}
-
-func jsonRestClient(s string) interface{} {
-	resp, err := http.Get(s)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	var data interface{}
-	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data)
-	return data
+	return js
 }
 
 /*
@@ -58,63 +43,50 @@ $ curl -H 'Content-Type: text/xml' -X POST --data @test.xml \
 Response data types encoding rules is as follows;
 https://github.com/kolo/xmlrpc#result-decoding
 */
-func xmlRpcClient(s string) []string {
-	client, _ := xmlrpc.NewClient(s, nil)
+func pypiClient() []interface{} {
+	client, _ := xmlrpc.NewClient(pypi, nil)
 	defer client.Close()
 	// PyPI user_packages()
 	var result [][]string
 	client.Call("user_packages", username, &result)
-	pkgs := make([]string, len(result))
+	pkgs := make([]interface{}, len(result))
 	for i, v := range result {
-		pkgs[i] = v[1]
+		var ver []string
+		client.Call("package_releases", v[1], &ver)
+		type dl struct {
+			LastDay   int `xmlrpc:"last_day"`
+			LastMonth int `xmlrpc:"last_month"`
+			LastWeek  int `xmlrpc:"last_week"`
+		}
+		meta := struct {
+			Name       string `xmlrpc:"name"`
+			Version    string `xmlrpc:"version"`
+			PackageUrl string `xmlrpc:"package_url"`
+			ReleaseUrl string `xmlrpc:"release_url"`
+			Downloads  dl     `xmlrpc:"downloads"`
+			Summary    string `xmlrpc:"summary"`
+		}{}
+		client.Call("release_data", []interface{}{v[1], ver[0]}, &meta)
+		pkgs[i] = meta
 	}
 	return pkgs
 }
 
-func assert(data interface{}) {
-	switch data.(type) {
-	case string:
-		fmt.Print(data.(string))
-	case float64:
-		fmt.Print(data.(float64))
-	case bool:
-		fmt.Print(data.(bool))
-	case nil:
-		fmt.Print("null")
-	case []interface{}:
-		fmt.Print("[")
-		for _, v := range data.([]interface{}) {
-			assert(v)
-			fmt.Print(" ")
-		}
-		fmt.Print("]")
-	case map[string]interface{}:
-		fmt.Print("{")
-		for k, v := range data.(map[string]interface{}) {
-			fmt.Print(k + ": ")
-			assert(v)
-			fmt.Print(" ")
-		}
-		fmt.Print("}")
-	default:
-	}
+func mergeJson() string {
+	js := simplejson.New()
+	js.Set("udd", restClient(udd+"&email1="+email).MustArray())
+	js.Set("github", restClient(github+"/"+username+"/events"))
+	js.Set("pypi", pypiClient())
+	data, _ := js.EncodePretty()
+	return string(data)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(restClient(udd+"&email1="+email)))
+	fmt.Fprintf(w, mergeJson())
 }
 
 func main() {
-	//uddResult := jsonRestClient(udd + "&email1=" + email)
-	//restClient(udd + "&email1=" + email)
-	//assert(uddResult)
-	/*
-		githubResult := jsonRestClient(github + "/" + username + "/events")
-		assert(githubResult)
-		pypiResult := xmlRpcClient(pypi)
-		fmt.Println(pypiResult)
-	*/
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":8080", nil)
 }
