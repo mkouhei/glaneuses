@@ -18,14 +18,15 @@ var (
 	github   = "https://api.github.com/users"
 )
 
-func restClient(s string) {
+func restClient(s string) []byte {
 	resp, err := http.Get(s)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 	js, err := simplejson.NewFromReader(resp.Body)
-	fmt.Println(js)
+	data, _ := js.EncodePretty()
+	return data
 }
 
 func jsonRestClient(s string) interface{} {
@@ -99,9 +100,14 @@ func assert(data interface{}) {
 	}
 }
 
+func handler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, string(restClient(udd+"&email1="+email)))
+}
+
 func main() {
 	//uddResult := jsonRestClient(udd + "&email1=" + email)
-	restClient(udd + "&email1=" + email)
+	//restClient(udd + "&email1=" + email)
 	//assert(uddResult)
 	/*
 		githubResult := jsonRestClient(github + "/" + username + "/events")
@@ -109,4 +115,6 @@ func main() {
 		pypiResult := xmlRpcClient(pypi)
 		fmt.Println(pypiResult)
 	*/
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(":8080", nil)
 }
