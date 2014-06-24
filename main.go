@@ -6,6 +6,7 @@ import (
 	"github.com/kolo/xmlrpc"
 	"log"
 	"net/http"
+	"io/ioutil"
 )
 
 var (
@@ -72,21 +73,25 @@ func pypiClient() []interface{} {
 	return pkgs
 }
 
-func mergeJson() string {
+func mergeJson() []byte {
 	js := simplejson.New()
 	js.Set("udd", restClient(udd+"&email1="+email).MustArray())
 	js.Set("github", restClient(github+"/"+username+"/events"))
 	js.Set("pypi", pypiClient())
 	data, _ := js.EncodePretty()
-	return string(data)
+	return data
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, mergeJson())
+	fmt.Fprintf(w, string(mergeJson()))
 }
 
 func main() {
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":8080", nil)
+	err := ioutil.WriteFile("hoge.json", mergeJson(), 0644)
+	if err != nil {
+		panic(err)
+	}
 }
