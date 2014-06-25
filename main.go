@@ -1,21 +1,47 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/bitly/go-simplejson"
 	"github.com/kolo/xmlrpc"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"io/ioutil"
 )
 
 var (
 	username = "mkouhei"
 	email    = "mkouhei@palmtb.net"
-	udd      = "http://udd.debian.org/dmd/?format=json"
+	udd      = "http://udd.debian.org/dmd/"
 	pypi     = "http://pypi.python.org/pypi"
 	github   = "https://api.github.com/users"
 )
+
+type deb struct {
+	Source string
+	Url    string
+}
+
+type dl struct {
+	LastDay   int `xmlrpc:"last_day"`
+	LastMonth int `xmlrpc:"last_month"`
+	LastWeek  int `xmlrpc:"last_week"`
+}
+
+func debPackages() []interface{} {
+	doc, _ := goquery.NewDocument(udd + "?email1=" + email)
+	cnt := doc.Find("h2#versions+table a").Length()
+	debs := make([]interface{}, cnt)
+	doc.Find("h2#versions+table a").Each(func(i int, s *goquery.Selection) {
+		url, exists := s.Attr("href")
+		if exists {
+			debs[i] = deb{s.Text(), url}
+		}
+	})
+	return debs
+}
 
 func restClient(s string) *simplejson.Json {
 	resp, err := http.Get(s)
@@ -54,11 +80,6 @@ func pypiClient() []interface{} {
 	for i, v := range result {
 		var ver []string
 		client.Call("package_releases", v[1], &ver)
-		type dl struct {
-			LastDay   int `xmlrpc:"last_day"`
-			LastMonth int `xmlrpc:"last_month"`
-			LastWeek  int `xmlrpc:"last_week"`
-		}
 		meta := struct {
 			Name       string `xmlrpc:"name"`
 			Version    string `xmlrpc:"version"`
@@ -75,7 +96,8 @@ func pypiClient() []interface{} {
 
 func mergeJson() []byte {
 	js := simplejson.New()
-	js.Set("udd", restClient(udd+"&email1="+email).MustArray())
+	js.Set("deb", debPackages())
+	js.Set("udd", restClient(udd+"?email1="+email+"&format=json").MustArray())
 	js.Set("github", restClient(github+"/"+username+"/events"))
 	js.Set("pypi", pypiClient())
 	data, _ := js.EncodePretty()
@@ -89,9 +111,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
-	err := ioutil.WriteFile("hoge.json", mergeJson(), 0644)
+	o := flag.String("o", "glaneuses.json", "Output file")
+	flag.Parse()
+
+	err := ioutil.WriteFile(*o, mergeJson(), 0644)
 	if err != nil {
 		panic(err)
 	}
