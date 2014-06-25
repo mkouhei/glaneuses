@@ -2,22 +2,26 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bitly/go-simplejson"
 	"github.com/kolo/xmlrpc"
+	"github.com/msbranco/goconfig"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
 var (
-	username = "mkouhei"
-	email    = "mkouhei@palmtb.net"
-	udd      = "http://udd.debian.org/dmd/"
-	pypi     = "http://pypi.python.org/pypi"
-	github   = "https://api.github.com/users"
+	udd    = "http://udd.debian.org/dmd/"
+	pypi   = "http://pypi.python.org/pypi"
+	github = "https://api.github.com/users"
 )
+
+type Account struct {
+	DebianEmail string
+	PypiUser    string
+	GithubUser  string
+}
 
 type deb struct {
 	Source string
@@ -30,7 +34,28 @@ type dl struct {
 	LastWeek  int `xmlrpc:"last_week"`
 }
 
-func debPackages() []interface{} {
+func readConfig(p string) Account {
+	c, err := goconfig.ReadConfigFile(p)
+	if err != nil {
+		log.Fatal(c, err)
+	}
+	debianEmail, err := c.GetString("debian", "email")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pypiUser, err := c.GetString("pypi", "username")
+	if err != nil {
+		log.Fatal(err)
+	}
+	githubUser, err := c.GetString("github", "username")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var acct Account = Account{debianEmail, pypiUser, githubUser}
+	return acct
+}
+
+func debPackages(email string) []interface{} {
 	doc, _ := goquery.NewDocument(udd + "?email1=" + email)
 	cnt := doc.Find("h2#versions+table a").Length()
 	debs := make([]interface{}, cnt)
@@ -70,12 +95,12 @@ $ curl -H 'Content-Type: text/xml' -X POST --data @test.xml \
 Response data types encoding rules is as follows;
 https://github.com/kolo/xmlrpc#result-decoding
 */
-func pypiClient() []interface{} {
+func pypiClient(user string) []interface{} {
 	client, _ := xmlrpc.NewClient(pypi, nil)
 	defer client.Close()
 	// PyPI user_packages()
 	var result [][]string
-	client.Call("user_packages", username, &result)
+	client.Call("user_packages", user, &result)
 	pkgs := make([]interface{}, len(result))
 	for i, v := range result {
 		var ver []string
@@ -94,27 +119,23 @@ func pypiClient() []interface{} {
 	return pkgs
 }
 
-func mergeJson() []byte {
+func mergeJson(a Account) []byte {
 	js := simplejson.New()
-	js.Set("deb", debPackages())
-	js.Set("udd", restClient(udd+"?email1="+email+"&format=json").MustArray())
-	js.Set("github", restClient(github+"/"+username+"/events"))
-	js.Set("pypi", pypiClient())
+	js.Set("deb", debPackages(a.DebianEmail))
+	js.Set("udd", restClient(udd+"?email1="+a.DebianEmail+"&format=json").MustArray())
+	js.Set("github", restClient(github+"/"+a.GithubUser+"/events"))
+	js.Set("pypi", pypiClient(a.PypiUser))
 	data, _ := js.EncodePretty()
 	return data
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, string(mergeJson()))
-}
-
 func main() {
+	c := flag.String("c", "glaneuses.conf", "Configuration file")
 	o := flag.String("o", "glaneuses.json", "Output file")
 	flag.Parse()
 
-	err := ioutil.WriteFile(*o, mergeJson(), 0644)
+	acct := readConfig(*c)
+	err := ioutil.WriteFile(*o, mergeJson(acct), 0644)
 	if err != nil {
 		panic(err)
 	}

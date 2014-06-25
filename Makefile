@@ -14,6 +14,7 @@ all: clean format build
 prebuild:
 	go get github.com/kolo/xmlrpc
 	go get github.com/bitly/go-simplejson
+	go get github.com/msbranco/goconfig
 	go get -d github.com/PuerkitoBio/goquery
 	install -d $(CURDIR)/_build/src/$(GOPKG)
 	cp -a $(CURDIR)/*.go $(CURDIR)/_build/src/$(GOPKG)
@@ -22,6 +23,8 @@ prebuild:
 build: prebuild
 	go build -o _build/$(BIN)
 
+build-only:
+	go build -o _build/$(BIN)
 
 clean:
 	#@rm -rf _build/glaneuses
