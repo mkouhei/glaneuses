@@ -9,23 +9,32 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 var (
-	udd    = "http://udd.debian.org/dmd/"
-	pypi   = "http://pypi.python.org/pypi"
-	github = "https://api.github.com/users"
+	udd       = "http://udd.debian.org/dmd/"
+	pypi      = "http://pypi.python.org/pypi"
+	github    = "https://api.github.com/users"
+	keyserver = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
 )
 
 type Account struct {
 	DebianEmail string
 	PypiUser    string
 	GithubUser  string
+	KeyId       string
 }
 
 type deb struct {
 	Source string
 	Url    string
+}
+
+type pgp struct {
+	Payload       string
+	PublicKeyPath string
+	VindexPath    string
 }
 
 type dl struct {
@@ -51,7 +60,11 @@ func readConfig(p string) Account {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var acct Account = Account{debianEmail, pypiUser, githubUser}
+	keyId, err := c.GetString("pgp", "keyid")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var acct Account = Account{debianEmail, pypiUser, githubUser, keyId}
 	return acct
 }
 
@@ -66,6 +79,27 @@ func debPackages(email string) []interface{} {
 		}
 	})
 	return debs
+}
+
+func pgpData(keyId string) pgp {
+	doc, _ := goquery.NewDocument(keyserver + keyId)
+	keydata := &pgp{}
+	doc.Find("pre+hr+pre").Each(func(i int, s *goquery.Selection) {
+		keydata.Payload = strings.Replace(
+			strings.Replace(s.Text(), "@", " at ", -1),
+			".", " dot ", -1)
+		s.Find("a").Each(func(i int, s *goquery.Selection) {
+			url, exists := s.Attr("href")
+			if exists {
+				if i == 0 {
+					keydata.PublicKeyPath = url
+				} else if i == 1 {
+					keydata.VindexPath = url
+				}
+			}
+		})
+	})
+	return *keydata
 }
 
 func restClient(s string) *simplejson.Json {
@@ -125,6 +159,7 @@ func mergeJson(a Account) []byte {
 	js.Set("udd", restClient(udd+"?email1="+a.DebianEmail+"&format=json").MustArray())
 	js.Set("github", restClient(github+"/"+a.GithubUser+"/events"))
 	js.Set("pypi", pypiClient(a.PypiUser))
+	js.Set("pgp", pgpData(a.KeyId))
 	data, _ := js.EncodePretty()
 	return data
 }
