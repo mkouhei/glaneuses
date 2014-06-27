@@ -10,13 +10,17 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	//"time"
 )
 
 const (
-	udd       = "http://udd.debian.org/dmd/"
-	pypi      = "http://pypi.python.org/pypi"
-	github    = "https://api.github.com/users"
-	keyserver = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
+	udd                = "http://udd.debian.org/dmd/"
+	pypi               = "http://pypi.python.org/pypi"
+	github             = "https://api.github.com/users"
+	keyserver          = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
+	//defaultPollingWait = 30 * time.Minute
+	//DailyPollingWait   = 24 * time.Hour
+	//WeeklyPollingWait  = 7 * 24 * time.Hour
 )
 
 type Account struct {
@@ -43,33 +47,31 @@ type dl struct {
 	LastWeek  int `xmlrpc:"last_week"`
 }
 
-func readConfig(p string) Account {
+func (a *Account) readConfig(p string) {
 	c, err := goconfig.ReadConfigFile(p)
 	if err != nil {
 		log.Fatal(c, err)
 	}
-	debianEmail, err := c.GetString("debian", "email")
+	a.DebianEmail, err = c.GetString("debian", "email")
 	if err != nil {
 		log.Fatal(err)
 	}
-	pypiUser, err := c.GetString("pypi", "username")
+	a.PypiUser, err = c.GetString("pypi", "username")
 	if err != nil {
 		log.Fatal(err)
 	}
-	githubUser, err := c.GetString("github", "username")
+	a.GithubUser, err = c.GetString("github", "username")
 	if err != nil {
 		log.Fatal(err)
 	}
-	keyId, err := c.GetString("pgp", "keyid")
+	a.KeyId, err = c.GetString("pgp", "keyid")
 	if err != nil {
 		log.Fatal(err)
 	}
-	var acct Account = Account{debianEmail, pypiUser, githubUser, keyId}
-	return acct
 }
 
-func debPackages(email string) []interface{} {
-	doc, _ := goquery.NewDocument(udd + "?email1=" + email)
+func (a *Account) debPackages() []interface{} {
+	doc, _ := goquery.NewDocument(udd + "?email1=" + a.DebianEmail)
 	cnt := doc.Find("h2#versions+table a").Length()
 	debs := make([]interface{}, cnt)
 	doc.Find("h2#versions+table a").Each(func(i int, s *goquery.Selection) {
@@ -81,8 +83,8 @@ func debPackages(email string) []interface{} {
 	return debs
 }
 
-func pgpData(keyId string) pgp {
-	doc, _ := goquery.NewDocument(keyserver + keyId)
+func (a *Account) pgpData() pgp {
+	doc, _ := goquery.NewDocument(keyserver + a.KeyId)
 	keydata := &pgp{}
 	doc.Find("pre+hr+pre").Each(func(i int, s *goquery.Selection) {
 		keydata.Payload = strings.Replace(
@@ -129,12 +131,12 @@ $ curl -H 'Content-Type: text/xml' -X POST --data @test.xml \
 Response data types encoding rules is as follows;
 https://github.com/kolo/xmlrpc#result-decoding
 */
-func pypiClient(user string) []interface{} {
+func (a *Account) pypiClient() []interface{} {
 	client, _ := xmlrpc.NewClient(pypi, nil)
 	defer client.Close()
 	// PyPI user_packages()
 	var result [][]string
-	client.Call("user_packages", user, &result)
+	client.Call("user_packages", a.PypiUser, &result)
 	pkgs := make([]interface{}, len(result))
 	for i, v := range result {
 		var ver []string
@@ -153,13 +155,13 @@ func pypiClient(user string) []interface{} {
 	return pkgs
 }
 
-func mergeJson(a Account) []byte {
+func (a *Account) mergeJson() []byte {
 	js := simplejson.New()
-	js.Set("deb", debPackages(a.DebianEmail))
+	js.Set("deb", a.debPackages())
 	js.Set("udd", restClient(udd+"?email1="+a.DebianEmail+"&format=json").MustArray())
 	js.Set("github", restClient(github+"/"+a.GithubUser+"/events"))
-	js.Set("pypi", pypiClient(a.PypiUser))
-	js.Set("pgp", pgpData(a.KeyId))
+	js.Set("pypi", a.pypiClient())
+	js.Set("pgp", a.pgpData())
 	data, _ := js.EncodePretty()
 	return data
 }
@@ -169,8 +171,9 @@ func main() {
 	o := flag.String("o", "glaneuses.json", "Output file")
 	flag.Parse()
 
-	acct := readConfig(*c)
-	err := ioutil.WriteFile(*o, mergeJson(acct), 0644)
+	a := &Account{}
+	a.readConfig(*c)
+	err := ioutil.WriteFile(*o, a.mergeJson(), 0644)
 	if err != nil {
 		panic(err)
 	}
