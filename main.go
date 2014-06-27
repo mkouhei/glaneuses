@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-var (
+const (
 	udd       = "http://udd.debian.org/dmd/"
 	pypi      = "http://pypi.python.org/pypi"
 	github    = "https://api.github.com/users"
