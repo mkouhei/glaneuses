@@ -14,20 +14,22 @@ import (
 )
 
 const (
-	udd                = "http://udd.debian.org/dmd/"
-	pypi               = "http://pypi.python.org/pypi"
-	github             = "https://api.github.com/users"
-	keyserver          = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
+	udd       = "http://udd.debian.org/dmd/"
+	pypi      = "http://pypi.python.org/pypi"
+	github    = "https://api.github.com/users/"
+	bitbucket = "https://bitbucket.org/api/1.0/users/"
+	keyserver = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
 	//defaultPollingWait = 30 * time.Minute
 	//DailyPollingWait   = 24 * time.Hour
 	//WeeklyPollingWait  = 7 * 24 * time.Hour
 )
 
 type Account struct {
-	DebianEmail string
-	PypiUser    string
-	GithubUser  string
-	KeyId       string
+	DebianEmail   string
+	PypiUser      string
+	GithubUser    string
+	BitbucketUser string
+	KeyId         string
 }
 
 type deb struct {
@@ -61,6 +63,10 @@ func (a *Account) readConfig(p string) {
 		log.Fatal(err)
 	}
 	a.GithubUser, err = c.GetString("github", "username")
+	if err != nil {
+		log.Fatal(err)
+	}
+	a.BitbucketUser, err = c.GetString("bitbucket", "username")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -159,7 +165,8 @@ func (a *Account) mergeJson() []byte {
 	js := simplejson.New()
 	js.Set("deb", a.debPackages())
 	js.Set("udd", restClient(udd+"?email1="+a.DebianEmail+"&format=json").MustArray())
-	js.Set("github", restClient(github+"/"+a.GithubUser+"/events"))
+	js.Set("github", restClient(github+a.GithubUser+"/events"))
+	js.Set("bitbucket", restClient(bitbucket+a.BitbucketUser+"/events"))
 	js.Set("pypi", a.pypiClient())
 	js.Set("pgp", a.pgpData())
 	data, _ := js.EncodePretty()
