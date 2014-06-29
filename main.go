@@ -10,7 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	//"time"
+	"time"
 )
 
 const (
@@ -19,9 +19,6 @@ const (
 	github    = "https://api.github.com/users/"
 	bitbucket = "https://bitbucket.org/api/1.0/users/"
 	keyserver = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
-	//defaultPollingWait = 30 * time.Minute
-	//DailyPollingWait   = 24 * time.Hour
-	//WeeklyPollingWait  = 7 * 24 * time.Hour
 )
 
 type Account struct {
@@ -176,12 +173,24 @@ func (a *Account) mergeJson() []byte {
 func main() {
 	c := flag.String("c", "glaneuses.conf", "Configuration file")
 	o := flag.String("o", "glaneuses.json", "Output file")
+	p := flag.Int("p", 30, "Polling wait time (default: 30 (min))")
 	flag.Parse()
 
 	a := &Account{}
 	a.readConfig(*c)
-	err := ioutil.WriteFile(*o, a.mergeJson(), 0644)
-	if err != nil {
-		panic(err)
+
+	pollTicker := time.NewTicker(time.Duration(*p) * time.Minute)
+	defer func() {
+		pollTicker.Stop()
+	}()
+	for {
+		select {
+		case <-pollTicker.C:
+			log.Println("Gathering data and generate JSON.")
+			err := ioutil.WriteFile(*o, a.mergeJson(), 0644)
+			if err != nil {
+				panic(err)
+			}
+		}
 	}
 }
