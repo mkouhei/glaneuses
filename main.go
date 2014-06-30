@@ -16,6 +16,7 @@ import (
 const (
 	udd       = "http://udd.debian.org/dmd/"
 	pypi      = "http://pypi.python.org/pypi"
+	rubygems  = "https://rubygems.org/api/v1/owners/"
 	github    = "https://api.github.com/users/"
 	bitbucket = "https://bitbucket.org/api/1.0/users/"
 	keyserver = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
@@ -24,6 +25,7 @@ const (
 type Account struct {
 	DebianEmail   string
 	PypiUser      string
+	GemsUser      string
 	GithubUser    string
 	BitbucketUser string
 	KeyId         string
@@ -56,6 +58,10 @@ func (a *Account) readConfig(p string) {
 		log.Fatal(err)
 	}
 	a.PypiUser, err = c.GetString("pypi", "username")
+	if err != nil {
+		log.Fatal(err)
+	}
+	a.GemsUser, err = c.GetString("rubygems", "username")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -165,6 +171,7 @@ func (a *Account) mergeJson() []byte {
 	js.Set("github", restClient(github+a.GithubUser+"/events"))
 	js.Set("bitbucket", restClient(bitbucket+a.BitbucketUser+"/events"))
 	js.Set("pypi", a.pypiClient())
+	js.Set("rubygems", restClient(rubygems+a.GemsUser+"/gems.json"))
 	js.Set("pgp", a.pgpData())
 	data, _ := js.EncodePretty()
 	return data
