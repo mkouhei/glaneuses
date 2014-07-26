@@ -5,7 +5,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bitly/go-simplejson"
 	"github.com/kolo/xmlrpc"
-	"github.com/msbranco/goconfig"
+	"github.com/miguel-branco/goconfig"
 	"io/ioutil"
 	"log"
 	"net/http"
