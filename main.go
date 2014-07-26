@@ -85,8 +85,11 @@ func (a *Account) readConfig(p string) {
 	}
 }
 
-func (a *Account) debPackages() []interface{} {
-	doc, _ := goquery.NewDocument(udd + "?email1=" + a.DebianEmail)
+func (a *Account) debPackages() ([]interface{}, error) {
+	doc, err := goquery.NewDocument(udd + "?email1=" + a.DebianEmail)
+	if err != nil {
+		return nil, err
+	}
 	cnt := doc.Find("h2#versions+table a").Length()
 	debs := make([]interface{}, cnt)
 	doc.Find("h2#versions+table a").Each(func(i int, s *goquery.Selection) {
@@ -95,12 +98,15 @@ func (a *Account) debPackages() []interface{} {
 			debs[i] = deb{s.Text(), url}
 		}
 	})
-	return debs
+	return debs, nil
 }
 
-func (a *Account) pgpData() pgp {
-	doc, _ := goquery.NewDocument(keyserver + a.KeyId)
+func (a *Account) pgpData() (pgp, error) {
 	keydata := &pgp{}
+	doc, err := goquery.NewDocument(keyserver + a.KeyId)
+	if err != nil {
+		return *keydata, err
+	}
 	doc.Find("pre+hr+pre").Each(func(i int, s *goquery.Selection) {
 		keydata.Payload = strings.Replace(
 			strings.Replace(s.Text(), "@", " at ", -1),
@@ -116,7 +122,7 @@ func (a *Account) pgpData() pgp {
 			}
 		})
 	})
-	return *keydata
+	return *keydata, nil
 }
 
 func restClient(s string) *simplejson.Json {
@@ -146,8 +152,11 @@ $ curl -H 'Content-Type: text/xml' -X POST --data @test.xml \
 Response data types encoding rules is as follows;
 https://github.com/kolo/xmlrpc#result-decoding
 */
-func (a *Account) pypiClient() []interface{} {
-	client, _ := xmlrpc.NewClient(pypi, nil)
+func (a *Account) pypiClient() ([]interface{}, error) {
+	client, err := xmlrpc.NewClient(pypi, nil)
+	if err != nil {
+		return nil, err
+	}
 	defer client.Close()
 	// PyPI user_packages()
 	var result [][]string
@@ -167,20 +176,30 @@ func (a *Account) pypiClient() []interface{} {
 		client.Call("release_data", []interface{}{v[1], ver[0]}, &meta)
 		pkgs[i] = meta
 	}
-	return pkgs
+	return pkgs, nil
 }
 
-func (a *Account) mergeJson() []byte {
+func (a *Account) mergeJson() ([]byte, error) {
 	js := simplejson.New()
-	js.Set("deb", a.debPackages())
-	js.Set("udd", restClient(udd+"?email1="+a.DebianEmail+"&format=json").MustArray())
-	js.Set("github", restClient(github+a.GithubUser+"/events"))
-	js.Set("bitbucket", restClient(bitbucket+a.BitbucketUser+"/events"))
-	js.Set("pypi", a.pypiClient())
-	js.Set("rubygems", restClient(rubygems+a.GemsUser+"/gems.json"))
-	js.Set("pgp", a.pgpData())
-	data, _ := js.EncodePretty()
-	return data
+	dp, err := a.debPackages()
+	js.Set("deb", dp)
+	up := restClient(udd + "?email1=" + a.DebianEmail + "&format=json").MustArray()
+	js.Set("udd", up)
+	gp := restClient(github + a.GithubUser + "/events")
+	js.Set("github", gp)
+	bp := restClient(bitbucket + a.BitbucketUser + "/events")
+	js.Set("bitbucket", bp)
+	pp, err := a.pypiClient()
+	js.Set("pypi", pp)
+	rp := restClient(rubygems + a.GemsUser + "/gems.json")
+	js.Set("rubygems", rp)
+	pgpP, err := a.pgpData()
+	js.Set("pgp", pgpP)
+	data, err := js.EncodePretty()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func main() {
@@ -200,9 +219,13 @@ func main() {
 		select {
 		case <-pollTicker.C:
 			log.Println("Gathering data and generate JSON.")
-			err := ioutil.WriteFile(*o, a.mergeJson(), 0644)
+			data, err := a.mergeJson()
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
+			}
+			err = ioutil.WriteFile(*o, data, 0644)
+			if err != nil {
+				log.Fatal(err)
 			}
 		}
 	}
