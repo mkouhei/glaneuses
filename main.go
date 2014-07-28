@@ -2,15 +2,16 @@ package main
 
 import (
 	"flag"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/bitly/go-simplejson"
-	"github.com/kolo/xmlrpc"
-	"github.com/miguel-branco/goconfig"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/bitly/go-simplejson"
+	"github.com/kolo/xmlrpc"
+	"github.com/miguel-branco/goconfig"
 )
 
 const (

@@ -34,7 +34,9 @@ clean:
 format:
 	for src in $(SRC); do \
 		gofmt $$src > $$src.tmp ;\
-		mv -f $$src.tmp $$src ;\
+		goimports $$src.tmp > $$src.tmp2 ;\
+		mv -f $$src.tmp2 $$src ;\
+		rm -f $$src.tmp ;\
 	done
 
 
