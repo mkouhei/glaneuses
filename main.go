@@ -174,7 +174,10 @@ func (a *Account) pypiClient() ([]interface{}, error) {
 			Downloads  dl     `xmlrpc:"downloads"`
 			Summary    string `xmlrpc:"summary"`
 		}{}
-		client.Call("release_data", []interface{}{v[1], ver[0]}, &meta)
+		err := client.Call("release_data", []interface{}{v[1], ver[0]}, &meta)
+		if err != nil {
+			return nil, err
+		}
 		pkgs[i] = meta
 	}
 	return pkgs, nil
