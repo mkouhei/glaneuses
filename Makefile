@@ -28,7 +28,7 @@ build-only:
 clean:
 	#@rm -rf _build/glaneuses
 	@rm -rf _build/
-
+	@rm -f main.test
 
 format:
 	for src in $(SRC); do \
