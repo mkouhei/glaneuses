@@ -8,8 +8,7 @@ GOPATH := $(CURDIR)/_build:$(GOPATH)
 export GOPATH
 
 
-#all: clean format test build
-all: clean format build
+all: clean format test build
 
 prebuild:
 	go get github.com/kolo/xmlrpc
