@@ -8,7 +8,14 @@ GOPATH := $(CURDIR)/_build:$(GOPATH)
 export GOPATH
 
 
-all: clean format test build
+all: precheck clean format test build
+
+precheck:
+	@if [ -d .git ]; then \
+	set -e; \
+	diff -u .git/hooks/pre-commit utils/pre-commit.txt ;\
+	[ -x .git/hooks/pre-commit ] ;\
+	fi
 
 prebuild:
 	go get github.com/kolo/xmlrpc
@@ -26,7 +33,6 @@ build-only:
 	go build -o _build/$(BIN)
 
 clean:
-	#@rm -rf _build/glaneuses
 	@rm -rf _build/
 	@rm -f main.test
 
