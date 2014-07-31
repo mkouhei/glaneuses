@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"time"
 
 	"github.com/bitly/go-simplejson"
 )
@@ -36,6 +37,7 @@ func (a *Account) mergeJson() ([]byte, error) {
 	js.Set("rubygems", rp)
 	pgpP, err := a.pgpData()
 	js.Set("pgp", pgpP)
+	js.Set("geneated_datetime", time.Now())
 	data, err := js.EncodePretty()
 	if err != nil {
 		return nil, err
