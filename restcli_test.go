@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-
 	"testing"
 
 	"github.com/bitly/go-simplejson"

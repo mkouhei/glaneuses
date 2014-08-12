@@ -12,9 +12,9 @@ type pgp struct {
 	VindexPath    string
 }
 
-func (a *Account) pgpData() (pgp, error) {
+func (a *Account) pgpData(keyserverUrl string) (pgp, error) {
 	keydata := &pgp{}
-	doc, err := goquery.NewDocument(keyserver + a.KeyId)
+	doc, err := goquery.NewDocument(keyserverUrl + a.KeyId)
 	if err != nil {
 		return *keydata, err
 	}

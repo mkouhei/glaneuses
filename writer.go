@@ -35,7 +35,7 @@ func (a *Account) mergeJson() ([]byte, error) {
 	js.Set("pypi", pp)
 	rp := restClient(rubygems + a.GemsUser + "/gems.json")
 	js.Set("rubygems", rp)
-	pgpP, err := a.pgpData()
+	pgpP, err := a.pgpData(keyserver)
 	js.Set("pgp", pgpP)
 	js.Set("geneated_datetime", time.Now())
 	data, err := js.EncodePretty()
