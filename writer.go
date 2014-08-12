@@ -23,7 +23,7 @@ func (a *Account) writeJson(o string) error {
 
 func (a *Account) mergeJson() ([]byte, error) {
 	js := simplejson.New()
-	dp, err := a.debPackages()
+	dp, err := a.debPackages(udd)
 	js.Set("deb", dp)
 	up := restClient(udd + "?email1=" + a.DebianEmail + "&format=json").MustArray()
 	js.Set("udd", up)
