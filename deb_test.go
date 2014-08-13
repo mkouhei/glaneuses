@@ -77,14 +77,14 @@ func TestDebPackages(t *testing.T) {
 	var a Account
 	d, err := a.debPackages(ts.URL)
 	if err != nil {
-		t.Fatal("%v", err)
+		t.Fatalf("%v", err)
 	}
 	for i, v := range d {
 		if v.(deb).Source != fmt.Sprintf("example%d", i) {
-			t.Fatal("%v, want: example%d\n", v.(deb).Source, i)
+			t.Fatalf("%v, want: example%d\n", v.(deb).Source, i)
 		}
 		if v.(deb).Url != fmt.Sprintf("http://packages.qa.debian.org/example%d", i) {
-			t.Fatal("%s, want: http://packages.qa.debian.org/example%d\n", v.(deb).Url, i)
+			t.Fatalf("%s, want: http://packages.qa.debian.org/example%d\n", v.(deb).Url, i)
 		}
 	}
 }

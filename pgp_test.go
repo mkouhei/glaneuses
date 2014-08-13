@@ -35,7 +35,7 @@ func TestPgpData(t *testing.T) {
 	var a Account
 	p, err := a.pgpData(ts.URL)
 	if err != nil {
-		t.Fatal("%v", err)
+		t.Fatalf("%v", err)
 	}
 	payload := `pub  4096R/00000000 2014-08-12 Alice <alice at example dot org>
 	 Fingerprint=0000 0000 0000 0000 0000  0000 0000 0000 0000 0000 
