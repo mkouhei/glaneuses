@@ -34,7 +34,6 @@ build-only:
 
 clean:
 	@rm -f _build/$(BIN)
-	@rm -f main.test
 
 format:
 	for src in $(SRC); do \
