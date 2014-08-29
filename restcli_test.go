@@ -18,9 +18,9 @@ func TestRestClient(t *testing.T) {
 		fmt.Fprintln(w, string(data))
 	}))
 	defer ts.Close()
-	js := restClient(ts.URL)
-	if js == nil {
-		t.Errorf("%v", js)
+	js, err := restClient(ts.URL)
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 	if v, err := js.Get("hello").String(); err != nil {
 		t.Errorf("%v, want: world\n", v)
