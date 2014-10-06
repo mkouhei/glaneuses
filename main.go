@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"time"
 )
@@ -24,11 +25,18 @@ type Account struct {
 	KeyId         string
 }
 
+var version string
+var show_version = flag.Bool("version", false, "show_version")
+
 func main() {
 	c := flag.String("c", "glaneuses.conf", "Configuration file")
 	o := flag.String("o", "glaneuses.json", "Output file")
 	p := flag.Int("p", 30, "Polling wait time (default: 30 (min))")
 	flag.Parse()
+	if *show_version {
+		fmt.Printf("version: %s\n", version)
+		return
+	}
 
 	a := &Account{}
 	a.readConfig(*c)
