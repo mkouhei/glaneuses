@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -18,7 +20,7 @@ func (a *Account) debPackages(uddUrl string) ([]interface{}, error) {
 	debs := make([]interface{}, cnt)
 	doc.Find("h2#versions+table a").Each(func(i int, s *goquery.Selection) {
 		url, exists := s.Attr("href")
-		if exists {
+		if exists && !strings.Contains(url, "qa.debian.org") {
 			debs[i] = deb{s.Text(), url}
 		}
 	})

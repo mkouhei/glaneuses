@@ -28,7 +28,7 @@ const debbody = `<html>
 </tr>
 </thead>
 <tbody>
-    <tr><td><a href="http://packages.qa.debian.org/example0" title="Maintained by Alice">example0</a></td>
+    <tr><td><a href="https://tracker.debian.org/example0" title="Maintained by Alice">example0</a></td>
        <td>
        &nbsp;
       </td>
@@ -46,7 +46,7 @@ const debbody = `<html>
       &nbsp;
     </td>
     </tr>
-    <tr><td><a href="http://packages.qa.debian.org/example1" title="Maintained by Alice">example1</a></td>
+    <tr><td><a href="https://tracker.debian.org/example1" title="Maintained by Alice">example1</a></td>
         <td colspan="2" class="center">
        &nbsp;
       </td>
@@ -83,8 +83,8 @@ func TestDebPackages(t *testing.T) {
 		if v.(deb).Source != fmt.Sprintf("example%d", i) {
 			t.Fatalf("%v, want: example%d\n", v.(deb).Source, i)
 		}
-		if v.(deb).Url != fmt.Sprintf("http://packages.qa.debian.org/example%d", i) {
-			t.Fatalf("%s, want: http://packages.qa.debian.org/example%d\n", v.(deb).Url, i)
+		if v.(deb).Url != fmt.Sprintf("https://tracker.debian.org/example%d", i) {
+			t.Fatalf("%s, want: https://tracker.debian.org/example%d\n", v.(deb).Url, i)
 		}
 	}
 }
