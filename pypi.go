@@ -39,7 +39,10 @@ func (a *Account) pypiClient() ([]interface{}, error) {
 	pkgs := make([]interface{}, len(result))
 	for i, v := range result {
 		var ver []string
-		client.Call("package_releases", v[1], &ver)
+		err = client.Call("package_releases", v[1], &ver)
+		if err != nil {
+			return nil, err
+		}
 		meta := struct {
 			Name       string `xmlrpc:"name"`
 			Version    string `xmlrpc:"version"`
