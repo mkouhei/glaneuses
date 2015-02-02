@@ -32,7 +32,7 @@ func (a *Account) pypiClient() ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
+
 	// PyPI user_packages()
 	var result [][]string
 	client.Call("user_packages", a.PypiUser, &result)
@@ -53,9 +53,12 @@ func (a *Account) pypiClient() ([]interface{}, error) {
 		}{}
 		err := client.Call("release_data", []interface{}{v[1], ver[0]}, &meta)
 		if err != nil {
+			client.Close()
 			return nil, err
 		}
 		pkgs[i] = meta
 	}
+
+	client.Close()
 	return pkgs, nil
 }
