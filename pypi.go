@@ -46,8 +46,8 @@ func (a *account) pypiClient() ([]interface{}, error) {
 		meta := struct {
 			Name       string `xmlrpc:"name"`
 			Version    string `xmlrpc:"version"`
-			PackageUrl string `xmlrpc:"package_url"`
-			ReleaseUrl string `xmlrpc:"release_url"`
+			PackageURL string `xmlrpc:"package_url"`
+			ReleaseURL string `xmlrpc:"release_url"`
 			Downloads  dl     `xmlrpc:"downloads"`
 			Summary    string `xmlrpc:"summary"`
 		}{}

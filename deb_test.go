@@ -83,8 +83,8 @@ func TestDebPackages(t *testing.T) {
 		if v.(deb).Source != fmt.Sprintf("example%d", i) {
 			t.Fatalf("%v, want: example%d\n", v.(deb).Source, i)
 		}
-		if v.(deb).Url != fmt.Sprintf("https://tracker.debian.org/example%d", i) {
-			t.Fatalf("%s, want: https://tracker.debian.org/example%d\n", v.(deb).Url, i)
+		if v.(deb).URL != fmt.Sprintf("https://tracker.debian.org/example%d", i) {
+			t.Fatalf("%s, want: https://tracker.debian.org/example%d\n", v.(deb).URL, i)
 		}
 	}
 }

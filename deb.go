@@ -8,11 +8,11 @@ import (
 
 type deb struct {
 	Source string
-	Url    string
+	URL    string
 }
 
-func (a *account) debPackages(uddUrl string) ([]interface{}, error) {
-	doc, err := goquery.NewDocument(uddUrl + "?email1=" + a.DebianEmail)
+func (a *account) debPackages(uddURL string) ([]interface{}, error) {
+	doc, err := goquery.NewDocument(uddURL + "?email1=" + a.DebianEmail)
 	if err != nil {
 		return nil, err
 	}
