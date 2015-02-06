@@ -26,14 +26,14 @@ type Account struct {
 }
 
 var version string
-var show_version = flag.Bool("version", false, "show_version")
+var showVersion = flag.Bool("version", false, "showVersion")
 
 func main() {
 	c := flag.String("c", "glaneuses.conf", "Configuration file")
 	o := flag.String("o", "glaneuses.json", "Output file")
 	p := flag.Int("p", 30, "Polling wait time (default: 30 (min))")
 	flag.Parse()
-	if *show_version {
+	if *showVersion {
 		fmt.Printf("version: %s\n", version)
 		return
 	}
