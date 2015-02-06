@@ -48,7 +48,7 @@ func main() {
 	for {
 		select {
 		case <-pollTicker.C:
-			err := a.writeJson(*o)
+			err := a.writeJSON(*o)
 			if err != nil {
 				log.Fatal(err)
 			}
