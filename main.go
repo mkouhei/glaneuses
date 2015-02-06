@@ -22,7 +22,7 @@ type account struct {
 	GemsUser      string
 	GithubUser    string
 	BitbucketUser string
-	KeyId         string
+	KeyID         string
 }
 
 var version string

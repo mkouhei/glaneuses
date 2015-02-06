@@ -22,7 +22,7 @@ func TestReadConfig(t *testing.T) {
 	if a.BitbucketUser != "guest" {
 		t.Fatal("parse error [bitbucket]username")
 	}
-	if a.KeyId != "0x00000000" {
+	if a.KeyID != "0x00000000" {
 		t.Fatal("parse error [pgp]keyid")
 	}
 }

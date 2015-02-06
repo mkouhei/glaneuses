@@ -36,9 +36,9 @@ func (a *account) readConfig(p string) {
 		log.Println(err)
 		a.BitbucketUser = ""
 	}
-	a.KeyId, err = c.GetString("pgp", "keyid")
+	a.KeyID, err = c.GetString("pgp", "keyid")
 	if err != nil {
 		log.Println(err)
-		a.KeyId = ""
+		a.KeyID = ""
 	}
 }

@@ -14,7 +14,7 @@ type pgp struct {
 
 func (a *account) pgpData(keyserverURL string) (pgp, error) {
 	keydata := &pgp{}
-	doc, err := goquery.NewDocument(keyserverURL + a.KeyId)
+	doc, err := goquery.NewDocument(keyserverURL + a.KeyID)
 	if err != nil {
 		return *keydata, err
 	}
