@@ -16,7 +16,7 @@ const (
 	keyserver = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
 )
 
-type Account struct {
+type account struct {
 	DebianEmail   string
 	PypiUser      string
 	GemsUser      string
@@ -38,7 +38,7 @@ func main() {
 		return
 	}
 
-	a := &Account{}
+	a := &account{}
 	a.readConfig(*c)
 
 	pollTicker := time.NewTicker(time.Duration(*p) * time.Minute)

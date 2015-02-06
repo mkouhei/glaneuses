@@ -27,7 +27,7 @@ $ curl -H 'Content-Type: text/xml' -X POST --data @test.xml \
 Response data types encoding rules is as follows;
 https://github.com/kolo/xmlrpc#result-decoding
 */
-func (a *Account) pypiClient() ([]interface{}, error) {
+func (a *account) pypiClient() ([]interface{}, error) {
 	client, err := xmlrpc.NewClient(pypi, nil)
 	if err != nil {
 		return nil, err

@@ -6,7 +6,7 @@ import (
 	"github.com/miguel-branco/goconfig"
 )
 
-func (a *Account) readConfig(p string) {
+func (a *account) readConfig(p string) {
 	c, err := goconfig.ReadConfigFile(p)
 	if err != nil {
 		log.Fatal(c, err)

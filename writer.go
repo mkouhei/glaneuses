@@ -8,7 +8,7 @@ import (
 	"github.com/bitly/go-simplejson"
 )
 
-func (a *Account) writeJson(o string) error {
+func (a *account) writeJson(o string) error {
 	log.Println("Gathering data and generate JSON.")
 	data, err := a.mergeJson()
 	if err != nil {
@@ -21,7 +21,7 @@ func (a *Account) writeJson(o string) error {
 	return nil
 }
 
-func (a *Account) mergeJson() ([]byte, error) {
+func (a *account) mergeJson() ([]byte, error) {
 	js := simplejson.New()
 	dp, err := a.debPackages(udd)
 	if err != nil {

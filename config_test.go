@@ -5,7 +5,7 @@ import (
 )
 
 func TestReadConfig(t *testing.T) {
-	a := &Account{}
+	a := &account{}
 	a.readConfig("examples/glaneuses.conf")
 	if a.DebianEmail != "guest@example.org" {
 		t.Fatal("parse error [debian]email")

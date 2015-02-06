@@ -74,7 +74,7 @@ func TestDebPackages(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	var a Account
+	var a account
 	d, err := a.debPackages(ts.URL)
 	if err != nil {
 		t.Fatalf("%v", err)

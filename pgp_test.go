@@ -32,7 +32,7 @@ func TestPgpData(t *testing.T) {
 		fmt.Fprintln(w, body)
 	}))
 	defer ts.Close()
-	var a Account
+	var a account
 	p, err := a.pgpData(ts.URL)
 	if err != nil {
 		t.Fatalf("%v", err)

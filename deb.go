@@ -11,7 +11,7 @@ type deb struct {
 	Url    string
 }
 
-func (a *Account) debPackages(uddUrl string) ([]interface{}, error) {
+func (a *account) debPackages(uddUrl string) ([]interface{}, error) {
 	doc, err := goquery.NewDocument(uddUrl + "?email1=" + a.DebianEmail)
 	if err != nil {
 		return nil, err
