@@ -55,4 +55,4 @@ test: prebuild
 	go test -v -covermode=count -coverprofile=c.out $(GOPKG)
 	go tool cover $(FUNC)=c.out
 	unlink c.out
-	rm -f $(BIN).test
+	rm -f $(BIN).test main.test
