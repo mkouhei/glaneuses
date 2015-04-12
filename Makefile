@@ -1,9 +1,9 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-BIN := glaneuses
+BIN := $(shell basename $(CURDIR))
 SRC := *.go
-GOPKG := github.com/mkouhei/glaneuses/
+GOPKG := github.com/mkouhei/$(PRJNAME)
 GOPATH := $(CURDIR)/_build
 export GOPATH
 PATH := $(CURDIR)/_build/bin:$(PATH)
