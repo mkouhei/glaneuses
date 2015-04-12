@@ -1,7 +1,8 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-BIN := $(shell basename $(CURDIR))
+PRJNAME := $(shell basename $(CURDIR))
+BIN := $(PRJNAME)
 SRC := *.go
 GOPKG := github.com/mkouhei/$(PRJNAME)
 GOPATH := $(CURDIR)/_build
