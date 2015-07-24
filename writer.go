@@ -33,7 +33,9 @@ func (a *account) mergeJSON() ([]byte, error) {
 	if err != nil {
 		log.Println(err)
 	}
-	js.Set("udd", up.MustArray())
+	if up != nil {
+		js.Set("udd", up.MustArray())
+	}
 
 	gp, err := restClient(github + a.GithubUser + "/events")
 	if err != nil {
