@@ -11,32 +11,32 @@ func (a *account) readConfig(p string) {
 	if err != nil {
 		log.Fatal(c, err)
 	}
-	a.DebianEmail, err = c.GetString("debian", "email")
+	a.DebianEmail, err = c.GetString("account", "debian")
 	if err != nil {
 		log.Println(err)
 		a.DebianEmail = ""
 	}
-	a.PypiUser, err = c.GetString("pypi", "username")
+	a.PypiUser, err = c.GetString("account", "pypi")
 	if err != nil {
 		log.Println(err)
 		a.PypiUser = ""
 	}
-	a.GemsUser, err = c.GetString("rubygems", "username")
+	a.GemsUser, err = c.GetString("account", "rubygems")
 	if err != nil {
 		log.Println(err)
 		a.GemsUser = ""
 	}
-	a.GithubUser, err = c.GetString("github", "username")
+	a.GithubUser, err = c.GetString("account", "github")
 	if err != nil {
 		log.Println(err)
 		a.GithubUser = ""
 	}
-	a.BitbucketUser, err = c.GetString("bitbucket", "username")
+	a.BitbucketUser, err = c.GetString("account", "bitbucket")
 	if err != nil {
 		log.Println(err)
 		a.BitbucketUser = ""
 	}
-	a.KeyID, err = c.GetString("pgp", "keyid")
+	a.KeyID, err = c.GetString("account", "pgp")
 	if err != nil {
 		log.Println(err)
 		a.KeyID = ""
