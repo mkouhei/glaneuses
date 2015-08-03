@@ -8,64 +8,55 @@ import (
 	"github.com/bitly/go-simplejson"
 )
 
-func (a *account) writeJSON(o string) error {
+func (conf *config) writeJSON(outpath string) error {
 	log.Println("Gathering data and generate JSON.")
-	data, err := a.mergeJSON()
+	data, err := conf.mergeJSON()
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(o, data, 0644)
+	err = ioutil.WriteFile(outpath, data, 0644)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (a *account) mergeJSON() ([]byte, error) {
+func (conf *config) mergeJSON() ([]byte, error) {
 	js := simplejson.New()
-	dp, err := a.debPackages(udd)
-	if err != nil {
-		log.Println(err)
+	for _, srv := range conf.services {
+		switch {
+		case srv.name == "debian":
+			payload, err := srv.debPackages()
+			if err != nil {
+				log.Println(err)
+			}
+			js.Set("deb", payload)
+			srv.uri += "&format=json"
+			payload2, err := srv.restClient()
+			if err != nil {
+				log.Println(err)
+			}
+			js.Set("udd", payload2.MustArray())
+		case (srv.name == "github" || srv.name == "bitbucket" || srv.name == "rubygems"):
+			payload, err := srv.restClient()
+			if err != nil {
+				log.Println(err)
+			}
+			js.Set(srv.name, payload)
+		case srv.name == "pypi":
+			payload, err := srv.pypiClient()
+			if err != nil {
+				log.Println(err)
+			}
+			js.Set(srv.name, payload)
+		case srv.name == "pgp":
+			payload, err := srv.pgpData()
+			if err != nil {
+				log.Println(err)
+			}
+			js.Set(srv.name, payload)
+		}
 	}
-	js.Set("deb", dp)
-
-	up, err := restClient(udd + "?email1=" + a.DebianEmail + "&format=json")
-	if err != nil {
-		log.Println(err)
-	}
-	if up != nil {
-		js.Set("udd", up.MustArray())
-	}
-
-	gp, err := restClient(github + a.GithubUser + "/events")
-	if err != nil {
-		log.Println(err)
-	}
-	js.Set("github", gp)
-
-	bp, err := restClient(bitbucket + a.BitbucketUser + "/events")
-	if err != nil {
-		log.Println(err)
-	}
-	js.Set("bitbucket", bp)
-
-	pp, err := a.pypiClient()
-	if err != nil {
-		log.Println(err)
-	}
-	js.Set("pypi", pp)
-
-	rp, err := restClient(rubygems + a.GemsUser + "/gems.json")
-	if err != nil {
-		log.Println(err)
-	}
-	js.Set("rubygems", rp)
-
-	pgpP, err := a.pgpData(keyserver)
-	if err != nil {
-		log.Println(err)
-	}
-	js.Set("pgp", pgpP)
 
 	js.Set("geneated_datetime", time.Now())
 	data, err := js.EncodePretty()

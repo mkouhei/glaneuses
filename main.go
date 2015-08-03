@@ -7,22 +7,23 @@ import (
 	"time"
 )
 
-const (
-	udd       = "http://udd.debian.org/dmd/"
-	pypi      = "http://pypi.python.org/pypi"
-	rubygems  = "https://rubygems.org/api/v1/owners/"
-	github    = "https://api.github.com/users/"
-	bitbucket = "https://bitbucket.org/api/1.0/users/"
-	keyserver = "http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search="
-)
+type service struct {
+	name    string
+	account string
+	uri     string
+}
 
-type account struct {
-	DebianEmail   string
-	PypiUser      string
-	GemsUser      string
-	GithubUser    string
-	BitbucketUser string
-	KeyID         string
+type config struct {
+	services []service
+}
+
+var srvMap map[string]string = map[string]string{
+	"debian":    `https://udd.debian.org/dmd/?email1=%s`,
+	"pypi":      "https://pypi.python.org/pypi",
+	"rubygems":  `https://rubygems.org/api/v1/owners/%s/gems.json`,
+	"github":    `https://api.github.com/users/%s/events`,
+	"bitbucket": `https://bitbucket.org/api/1.0/users/%s/events`,
+	"pgp":       `http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search=%s`,
 }
 
 var version string
@@ -38,8 +39,8 @@ func main() {
 		return
 	}
 
-	a := &account{}
-	a.readConfig(*c)
+	conf := &config{}
+	conf.loadConfig(*c)
 
 	pollTicker := time.NewTicker(time.Duration(*p) * time.Minute)
 	defer func() {
@@ -48,7 +49,7 @@ func main() {
 	for {
 		select {
 		case <-pollTicker.C:
-			err := a.writeJSON(*o)
+			err := conf.writeJSON(*o)
 			if err != nil {
 				log.Fatal(err)
 			}

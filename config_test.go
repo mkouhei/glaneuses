@@ -5,24 +5,26 @@ import (
 )
 
 func TestReadConfig(t *testing.T) {
-	a := &account{}
-	a.readConfig("examples/glaneuses.conf")
-	if a.DebianEmail != "guest@example.org" {
-		t.Fatal("parse error [debian]email")
-	}
-	if a.PypiUser != "guest" {
-		t.Fatal("parse error [pypi]username")
-	}
-	if a.GemsUser != "guest" {
-		t.Fatal("parse error [rubygems]username")
-	}
-	if a.GithubUser != "guest" {
-		t.Fatal("parse error [github]username")
-	}
-	if a.BitbucketUser != "guest" {
-		t.Fatal("parse error [bitbucket]username")
-	}
-	if a.KeyID != "0x00000000" {
-		t.Fatal("parse error [pgp]keyid")
+	conf := &config{}
+	conf.loadConfig("examples/glaneuses.conf")
+	for _, srv := range conf.services {
+		if srv.name == "debian" && srv.account != "guest@example.org" {
+			t.Fatal("parse error [debian]email")
+		}
+		if srv.name == "pypi" && srv.account != "guest_pypi" {
+			t.Fatal("parse error [pypi]username")
+		}
+		if srv.name == "rubygems" && srv.account != "guest_gems" {
+			t.Fatal("parse error [rubygems]username")
+		}
+		if srv.name == "github" && srv.account != "guest_github" {
+			t.Fatal("parse error [github]username")
+		}
+		if srv.name == "bitbucket" && srv.account != "guest_bitbucket" {
+			t.Fatal("parse error [bitbucket]username")
+		}
+		if srv.name == "pgp" && srv.account != "0x00000000" {
+			t.Fatal("parse error [pgp]keyid")
+		}
 	}
 }

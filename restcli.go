@@ -6,8 +6,8 @@ import (
 	"github.com/bitly/go-simplejson"
 )
 
-func restClient(s string) (*simplejson.Json, error) {
-	resp, err := http.Get(s)
+func (srv *service) restClient() (*simplejson.Json, error) {
+	resp, err := http.Get(srv.uri)
 	if resp != nil {
 		defer resp.Body.Close()
 	}

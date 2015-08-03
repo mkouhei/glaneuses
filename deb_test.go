@@ -74,8 +74,9 @@ func TestDebPackages(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	var a account
-	d, err := a.debPackages(ts.URL)
+	var srv = service{"debian", "guest@example.org", ""}
+	srv.uri = ts.URL
+	d, err := srv.debPackages()
 	if err != nil {
 		t.Fatalf("%v", err)
 	}

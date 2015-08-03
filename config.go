@@ -1,44 +1,34 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/miguel-branco/goconfig"
 )
 
-func (a *account) readConfig(p string) {
-	c, err := goconfig.ReadConfigFile(p)
+func (conf *config) loadConfig(filepath string) {
+	c, err := goconfig.ReadConfigFile(filepath)
 	if err != nil {
 		log.Fatal(c, err)
 	}
-	a.DebianEmail, err = c.GetString("account", "debian")
-	if err != nil {
-		log.Println(err)
-		a.DebianEmail = ""
-	}
-	a.PypiUser, err = c.GetString("account", "pypi")
-	if err != nil {
-		log.Println(err)
-		a.PypiUser = ""
-	}
-	a.GemsUser, err = c.GetString("account", "rubygems")
-	if err != nil {
-		log.Println(err)
-		a.GemsUser = ""
-	}
-	a.GithubUser, err = c.GetString("account", "github")
-	if err != nil {
-		log.Println(err)
-		a.GithubUser = ""
-	}
-	a.BitbucketUser, err = c.GetString("account", "bitbucket")
-	if err != nil {
-		log.Println(err)
-		a.BitbucketUser = ""
-	}
-	a.KeyID, err = c.GetString("account", "pgp")
-	if err != nil {
-		log.Println(err)
-		a.KeyID = ""
+
+	for name, url := range srvMap {
+		acct, err := c.GetString("account", name)
+		var uri string
+		if err != nil {
+			acct = ""
+			uri = ""
+		} else if name == "pypi" {
+			uri = url
+		} else {
+			uri = fmt.Sprintf(url, acct)
+		}
+		srv := service{
+			name,
+			acct,
+			uri,
+		}
+		conf.services = append(conf.services, srv)
 	}
 }

@@ -18,7 +18,9 @@ func TestRestClient(t *testing.T) {
 		fmt.Fprintln(w, string(data))
 	}))
 	defer ts.Close()
-	js, err := restClient(ts.URL)
+
+	srv := service{"test", "guest", ts.URL}
+	js, err := srv.restClient()
 	if err != nil {
 		t.Errorf("%v", err)
 	}
