@@ -14,6 +14,7 @@ type pgp struct {
 
 func (srv *service) pgpData() (pgp, error) {
 	keydata := &pgp{}
+
 	doc, err := goquery.NewDocument(srv.uri)
 	if err != nil {
 		return *keydata, err
@@ -33,5 +34,6 @@ func (srv *service) pgpData() (pgp, error) {
 			}
 		})
 	})
+
 	return *keydata, nil
 }

@@ -11,40 +11,44 @@ import (
 
 var server = &http.Server{Addr: ":8080"}
 
+func getData(f func() ([]interface{}, error)) []interface{} {
+	payload, err := f()
+	if err != nil {
+		log.Println(err)
+	}
+	return payload
+}
+
+func getJSON(f func() (*simplejson.Json, error)) *simplejson.Json {
+	payload, err := f()
+	if err != nil {
+		log.Println(err)
+	}
+	return payload
+}
+
+func getPGP(f func() (pgp, error)) pgp {
+	payload, err := f()
+	if err != nil {
+		log.Println(err)
+	}
+	return payload
+}
+
 func (conf *config) mergeJSON() ([]byte, error) {
 	js := simplejson.New()
 	for _, srv := range conf.services {
 		switch {
 		case srv.name == "debian":
-			payload, err := srv.debPackages()
-			if err != nil {
-				log.Println(err)
-			}
-			js.Set("deb", payload)
+			js.Set("deb", getData(srv.debPackages))
 			srv.uri += "&format=json"
-			payload2, err := srv.restClient()
-			if err != nil {
-				log.Println(err)
-			}
-			js.Set("udd", payload2.MustArray())
+			js.Set("udd", getJSON(srv.restClient).MustArray())
 		case (srv.name == "github" || srv.name == "bitbucket" || srv.name == "rubygems"):
-			payload, err := srv.restClient()
-			if err != nil {
-				log.Println(err)
-			}
-			js.Set(srv.name, payload)
+			js.Set(srv.name, getJSON(srv.restClient))
 		case srv.name == "pypi":
-			payload, err := srv.pypiClient()
-			if err != nil {
-				log.Println(err)
-			}
-			js.Set(srv.name, payload)
+			js.Set(srv.name, getData(srv.pypiClient))
 		case srv.name == "pgp":
-			payload, err := srv.pgpData()
-			if err != nil {
-				log.Println(err)
-			}
-			js.Set(srv.name, payload)
+			js.Set(srv.name, getPGP(srv.pgpData))
 		}
 	}
 
