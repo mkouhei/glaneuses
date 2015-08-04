@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/miguel-branco/goconfig"
 )
@@ -12,6 +13,11 @@ func (conf *config) loadConfig(filepath string) {
 	if err != nil {
 		log.Fatal(c, err)
 	}
+	e, err := c.GetInt64("global", "expire")
+	if err != nil {
+		e = 30
+	}
+	conf.expire = time.Duration(e) * time.Minute
 
 	for name, url := range srvMap {
 		acct, err := c.GetString("account", name)

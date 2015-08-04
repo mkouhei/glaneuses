@@ -16,6 +16,7 @@ type service struct {
 
 type config struct {
 	services []service
+	expire   time.Duration
 }
 
 var (
@@ -46,6 +47,17 @@ func (conf *config) serveJSON(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	fmt.Fprintf(w, string(data))
+}
+
+func (conf *config) checkEtag(url string) string {
+	resp, err := http.Head(url)
+	if err != nil {
+		return ""
+	}
+	if len(resp.Header["Etag"]) > 0 {
+		return resp.Header["Etag"][0]
+	}
+	return fmt.Sprintf("expire-%d", int32(time.Now().Add(conf.expire).Unix()))
 }
 
 func main() {
