@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -28,14 +29,27 @@ var (
 	}
 	version     string
 	showVersion = flag.Bool("version", false, "showVersion")
+	server      = &http.Server{Addr: ":8080"}
 )
+
+func (conf *config) app() {
+	http.Handle("/", http.HandlerFunc(conf.serveJSON))
+	if err := http.ListenAndServe(server.Addr, nil); err != nil {
+		log.Fatalf("ListenAndServe: %s", err)
+	}
 }
 
+func (conf *config) serveJSON(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	data, err := conf.mergeJSON()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Fprintf(w, string(data))
+}
 
 func main() {
 	c := flag.String("c", "glaneuses.conf", "Configuration file")
-	o := flag.String("o", "glaneuses.json", "Output file")
-	p := flag.Int("p", 30, "Polling wait time (default: 30 (min))")
 	flag.Parse()
 	if *showVersion {
 		fmt.Printf("version: %s\n", version)
@@ -44,18 +58,5 @@ func main() {
 
 	conf := &config{}
 	conf.loadConfig(*c)
-
-	pollTicker := time.NewTicker(time.Duration(*p) * time.Minute)
-	defer func() {
-		pollTicker.Stop()
-	}()
-	for {
-		select {
-		case <-pollTicker.C:
-			err := conf.writeJSON(*o)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-	}
+	conf.app()
 }
