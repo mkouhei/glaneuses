@@ -1,25 +1,11 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"time"
 
 	"github.com/bitly/go-simplejson"
 )
-
-func (conf *config) writeJSON(outpath string) error {
-	log.Println("Gathering data and generate JSON.")
-	data, err := conf.mergeJSON()
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(outpath, data, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func (conf *config) mergeJSON() ([]byte, error) {
 	js := simplejson.New()
