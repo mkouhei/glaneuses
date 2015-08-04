@@ -25,7 +25,7 @@ var (
 		"rubygems":  `https://rubygems.org/api/v1/owners/%s/gems.json`,
 		"github":    `https://api.github.com/users/%s/events`,
 		"bitbucket": `https://bitbucket.org/api/1.0/users/%s/events`,
-		"pgp":       `http://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search=%s`,
+		"pgp":       `https://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search=%s`,
 	}
 	version     string
 	showVersion = flag.Bool("version", false, "showVersion")
