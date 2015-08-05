@@ -43,7 +43,7 @@ func (conf *config) mergeJSON() ([]byte, error) {
 			js.Set("deb", getData(srv.debPackages))
 			srv.uri += "&format=json"
 			js.Set("udd", getJSON(srv.restClient).MustArray())
-		case (srv.name == "github" || srv.name == "bitbucket" || srv.name == "rubygems"):
+		case srv.name == "github", srv.name == "bitbucket", srv.name == "rubygems":
 			js.Set(srv.name, getJSON(srv.restClient))
 		case srv.name == "pypi":
 			js.Set(srv.name, getData(srv.pypiClient))
