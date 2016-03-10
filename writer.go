@@ -32,9 +32,10 @@ func (a *account) mergeJSON() ([]byte, error) {
 	up, err := restClient(udd + "?email1=" + a.DebianEmail + "&format=json")
 	if err != nil {
 		log.Println(err)
-	}
-	if up != nil {
-		js.Set("udd", up.MustArray())
+	} else {
+		if up != nil {
+			js.Set("udd", up.MustArray())
+		}
 	}
 
 	gp, err := restClient(github + a.GithubUser + "/events")
