@@ -24,6 +24,7 @@ func TestRestClient(t *testing.T) {
 	if err != nil {
 		t.Errorf("%v", err)
 	}
+
 	if v, err := js.Get("hello").String(); err != nil {
 		t.Errorf("%v, want: world\n", v)
 	}
