@@ -31,7 +31,9 @@ func (a *account) pypiClient() ([]interface{}, error) {
 	client, err := xmlrpc.NewClient(pypi, nil)
 	if err != nil {
 		return nil, err
+
 	}
+	defer client.Close()
 
 	// PyPI user_packages()
 	var result [][]string
@@ -53,12 +55,9 @@ func (a *account) pypiClient() ([]interface{}, error) {
 		}{}
 		err := client.Call("release_data", []interface{}{v[1], ver[0]}, &meta)
 		if err != nil {
-			client.Close()
 			return nil, err
 		}
 		pkgs[i] = meta
 	}
-
-	client.Close()
 	return pkgs, nil
 }
