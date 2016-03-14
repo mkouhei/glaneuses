@@ -26,7 +26,7 @@ var (
 		"bitbucket": `https://api.bitbucket.org/2.0/repositories/%s`,
 		"pgp":       `https://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search=%s`,
 	}
-	version     string
+	ver         string
 	showVersion = flag.Bool("version", false, "showVersion")
 )
 
@@ -34,7 +34,7 @@ func main() {
 	c := flag.String("c", "glaneuses.conf", "Configuration file")
 	flag.Parse()
 	if *showVersion {
-		fmt.Printf("version: %s\n", version)
+		fmt.Printf("version: %s\n", ver)
 		return
 	}
 
