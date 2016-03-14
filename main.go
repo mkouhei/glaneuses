@@ -25,7 +25,7 @@ type account struct {
 	KeyID         string
 }
 
-var version string
+var ver string
 var showVersion = flag.Bool("version", false, "showVersion")
 
 func main() {
@@ -34,7 +34,7 @@ func main() {
 	p := flag.Int("p", 30, "Polling wait time (default: 30 (min))")
 	flag.Parse()
 	if *showVersion {
-		fmt.Printf("version: %s\n", version)
+		fmt.Printf("version: %s\n", ver)
 		return
 	}
 
