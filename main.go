@@ -22,6 +22,7 @@ var (
 		"debian":    `https://udd.debian.org/dmd/?email1=%s`,
 		"pypi":      "https://pypi.python.org/pypi",
 		"rubygems":  `https://rubygems.org/api/v1/owners/%s/gems.json`,
+		"hackage":   `http://hackage.haskell.org/user/%s.json`,
 		"github":    `https://api.github.com/users/%s/events`,
 		"bitbucket": `https://api.bitbucket.org/2.0/repositories/%s`,
 		"pgp":       `https://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search=%s`,

@@ -45,7 +45,7 @@ func (conf *config) mergeJSON() ([]byte, error) {
 			if getJSON(srv.restClient) != nil {
 				js.Set("udd", getJSON(srv.restClient).MustArray())
 			}
-		case srv.name == "github", srv.name == "bitbucket", srv.name == "rubygems":
+		case srv.name == "github", srv.name == "bitbucket", srv.name == "rubygems", srv.name == "hackage":
 			js.Set(srv.name, getJSON(srv.restClient))
 		case srv.name == "pypi":
 			js.Set(srv.name, getData(srv.pypiClient))
