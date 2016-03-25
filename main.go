@@ -29,6 +29,7 @@ var (
 	}
 	ver         string
 	showVersion = flag.Bool("version", false, "showVersion")
+	ignoreUids  []string
 )
 
 func main() {

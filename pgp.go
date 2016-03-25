@@ -12,6 +12,15 @@ type pgp struct {
 	VindexPath    string
 }
 
+func ignoreUID(s string) bool {
+	for _, u := range ignoreUids {
+		if strings.Contains(s, u) {
+			return true
+		}
+	}
+	return false
+}
+
 func (srv *service) pgpData() (pgp, error) {
 	keydata := &pgp{}
 
@@ -20,9 +29,20 @@ func (srv *service) pgpData() (pgp, error) {
 		return *keydata, err
 	}
 	doc.Find("pre+hr+pre").Each(func(i int, s *goquery.Selection) {
+		var p string
+		if len(ignoreUids) > 0 {
+			for _, l := range strings.Split(s.Text(), "\n") {
+				if !ignoreUID(l) {
+					p += l + "\n"
+				}
+			}
+		} else {
+			p = s.Text()
+		}
 		keydata.Payload = strings.Replace(
-			strings.Replace(s.Text(), "@", " at ", -1),
+			strings.Replace(p, "@", " at ", -1),
 			".", " dot ", -1)
+		keydata.Payload = strings.Replace(keydata.Payload, " \n\n", "\n", -1)
 		s.Find("a").Each(func(i int, s *goquery.Selection) {
 			url, exists := s.Attr("href")
 			if exists {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/miguel-branco/goconfig"
+	"strings"
 )
 
 func (conf *config) loadConfig(filepath string) {
@@ -37,4 +38,9 @@ func (conf *config) loadConfig(filepath string) {
 		}
 		conf.services = append(conf.services, srv)
 	}
+	uids, err := c.GetString("ignore", "uids")
+	if err != nil {
+		log.Println(err)
+	}
+	ignoreUids = strings.Split(uids, ",")
 }
