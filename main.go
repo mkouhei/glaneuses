@@ -13,8 +13,9 @@ type service struct {
 }
 
 type config struct {
-	services []service
-	expire   time.Duration
+	services   []service
+	expire     time.Duration
+	ignoreUIDS []string
 }
 
 var (
@@ -29,7 +30,6 @@ var (
 	}
 	ver         string
 	showVersion = flag.Bool("version", false, "showVersion")
-	ignoreUids  []string
 )
 
 func main() {

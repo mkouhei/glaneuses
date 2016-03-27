@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/miguel-branco/goconfig"
-	"strings"
 )
 
 func (conf *config) loadConfig(filepath string) {
@@ -42,5 +42,5 @@ func (conf *config) loadConfig(filepath string) {
 	if err != nil {
 		log.Println(err)
 	}
-	ignoreUids = strings.Split(uids, ",")
+	conf.ignoreUIDS = strings.Split(uids, ",")
 }

@@ -35,12 +35,12 @@ func TestPgpData(t *testing.T) {
 
 	srv := service{"pgp", "0x00000000", ""}
 	srv.uri = ts.URL
-	p, err := srv.pgpData()
+	p, err := srv.pgpData([]string{"ignore@example.com"})
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 	payload := `pub  4096R/00000000 2014-08-12 Alice <alice at example dot org>
-	 Fingerprint=0000 0000 0000 0000 0000  0000 0000 0000 0000 0000 
+	 Fingerprint=0000 0000 0000 0000 0000  0000 0000 0000 0000 0000
 `
 	if p.Payload != payload {
 		t.Fatalf("error: want: %s", payload)

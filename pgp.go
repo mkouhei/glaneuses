@@ -10,10 +10,11 @@ type pgp struct {
 	Payload       string
 	PublicKeyPath string
 	VindexPath    string
+	ignoreUIDS    []string
 }
 
-func ignoreUID(s string) bool {
-	for _, u := range ignoreUids {
+func ignoreUID(ignoreUIDS []string, s string) bool {
+	for _, u := range ignoreUIDS {
 		if strings.Contains(s, u) {
 			return true
 		}
@@ -21,7 +22,7 @@ func ignoreUID(s string) bool {
 	return false
 }
 
-func (srv *service) pgpData() (pgp, error) {
+func (srv *service) pgpData(ignoreUIDS []string) (pgp, error) {
 	keydata := &pgp{}
 
 	doc, err := goquery.NewDocument(srv.uri)
@@ -30,9 +31,9 @@ func (srv *service) pgpData() (pgp, error) {
 	}
 	doc.Find("pre+hr+pre").Each(func(i int, s *goquery.Selection) {
 		var p string
-		if len(ignoreUids) > 0 {
+		if len(ignoreUIDS) > 0 {
 			for _, l := range strings.Split(s.Text(), "\n") {
-				if !ignoreUID(l) {
+				if !ignoreUID(ignoreUIDS, l) {
 					p += l + "\n"
 				}
 			}

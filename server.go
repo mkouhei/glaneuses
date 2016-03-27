@@ -27,8 +27,7 @@ func getJSON(f func() (*simplejson.Json, error)) *simplejson.Json {
 	return payload
 }
 
-func getPGP(f func() (pgp, error)) pgp {
-	payload, err := f()
+func getPGP(payload pgp, err error) pgp {
 	if err != nil {
 		log.Println(err)
 	}
@@ -50,7 +49,7 @@ func (conf *config) mergeJSON() ([]byte, error) {
 		case srv.name == "pypi":
 			js.Set(srv.name, getData(srv.pypiClient))
 		case srv.name == "pgp":
-			js.Set(srv.name, getPGP(srv.pgpData))
+			js.Set(srv.name, getPGP(srv.pgpData(conf.ignoreUIDS)))
 		}
 	}
 
