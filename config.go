@@ -41,4 +41,8 @@ func (a *account) readConfig(p string) {
 		log.Println(err)
 		a.KeyID = ""
 	}
+	a.IgnoreUids, err = c.GetString("pgp", "ignores")
+	if err != nil {
+		a.IgnoreUids = ""
+	}
 }

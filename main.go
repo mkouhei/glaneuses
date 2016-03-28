@@ -23,6 +23,7 @@ type account struct {
 	GithubUser    string
 	BitbucketUser string
 	KeyID         string
+	IgnoreUids    string
 }
 
 var ver string
