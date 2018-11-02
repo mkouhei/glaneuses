@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -21,7 +22,7 @@ type config struct {
 var (
 	srvMap map[string]string = map[string]string{
 		"debian":    `https://udd.debian.org/dmd/?email1=%s`,
-		"pypi":      "https://pypi.python.org/pypi",
+		"pypi":      `https://libraries.io/api/search?platforms=Pypi&q=%s&api_key=%s`,
 		"rubygems":  `https://rubygems.org/api/v1/owners/%s/gems.json`,
 		"hackage":   `http://hackage.haskell.org/user/%s.json`,
 		"github":    `https://api.github.com/users/%s/events`,
@@ -41,5 +42,9 @@ func main() {
 
 	conf := &config{}
 	conf.loadConfig(*c)
-	conf.app()
+	data, err := conf.mergeJSON()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(data))
 }

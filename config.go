@@ -26,7 +26,17 @@ func (conf *config) loadConfig(filepath string) {
 			acct = ""
 			uri = ""
 		} else if name == "pypi" {
-			uri = url
+			acct, err := c.GetString("account", name)
+			if err != nil {
+				acct = ""
+				uri = ""
+			}
+			apikey, err := c.GetString("account", "libraries")
+			if err != nil {
+				apikey = ""
+				uri = ""
+			}
+			uri = fmt.Sprintf(url, acct, apikey)
 		} else {
 			uri = fmt.Sprintf(url, acct)
 		}
