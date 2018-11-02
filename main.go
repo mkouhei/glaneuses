@@ -26,7 +26,6 @@ var (
 		"hackage":   `http://hackage.haskell.org/user/%s.json`,
 		"github":    `https://api.github.com/users/%s/events`,
 		"bitbucket": `https://api.bitbucket.org/2.0/repositories/%s`,
-		"pgp":       `https://pgp.mit.edu/pks/lookup?op=index&fingerprint=on&search=%s`,
 	}
 	ver         string
 	showVersion = flag.Bool("version", false, "showVersion")

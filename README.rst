@@ -10,7 +10,6 @@ Retrieving your own data and generate one JSON data related as follows;
 * Event of `Bitbucket <https://bitbucket.org/>`_
 * `PyPI <https://pypi.python.org/pypi>`_
 * `Ruby Gems <https://rubygems.org/>`_
-* `GPG Public <https://pgp.mit.edu/>`_
 
 Getting started
 ---------------

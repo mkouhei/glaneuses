@@ -23,8 +23,5 @@ func TestReadConfig(t *testing.T) {
 		if srv.name == "bitbucket" && srv.account != "guest_bitbucket" {
 			t.Fatal("parse error [bitbucket]username")
 		}
-		if srv.name == "pgp" && srv.account != "0x00000000" {
-			t.Fatal("parse error [pgp]keyid")
-		}
 	}
 }

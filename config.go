@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/miguel-branco/goconfig"
@@ -38,9 +37,4 @@ func (conf *config) loadConfig(filepath string) {
 		}
 		conf.services = append(conf.services, srv)
 	}
-	uids, err := c.GetString("ignore", "uids")
-	if err != nil {
-		log.Println(err)
-	}
-	conf.ignoreUIDS = strings.Split(uids, ",")
 }
